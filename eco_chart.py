@@ -114,9 +114,9 @@ def main():
 
     col1, col2 = st.columns([5, 1])
     with col1:
-        selected = st.selectbox("📊지표선택", list(datasets.keys()))
+        selected = st.selectbox("📊 지표선택", list(datasets.keys()))
     with col2:
-        interval_option = st.selectbox("⏱️시간", ["1분", "1년", "5년", "10년", "20년","Max"])
+        interval_option = st.selectbox("⏱️ 기간선택", ["1분", "1년", "5년", "10년", "20년","Max"])
 
     height_percent = st.slider("차트 높이 (기본: 100%)", min_value=50, max_value=150, value=100, step=5)
     chart_height = int(500 * height_percent / 100)
