@@ -6,14 +6,16 @@ import pandas as pd
 from pandas.tseries.offsets import BDay
 import plotly.graph_objs as go
 from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
+
 
 
 @st.cache_data(show_spinner=False)
 def fetch_yahoo_history(ticker, interval_option):
     recent_business_day = pd.Timestamp.today() - pd.tseries.offsets.BDay(0)
-    if interval_option == "5분":
+    if interval_option == "1분":
         from_day = recent_business_day - BDay(3)
-        interval = "5m"
+        interval = "1m"
     elif  interval_option == "1년": 
         from_day = recent_business_day - timedelta(days=365)
         interval = "1d"
@@ -50,7 +52,7 @@ def fetch_yahoo_history(ticker, interval_option):
     timestamps = result["timestamp"]
     closes = result["indicators"]["quote"][0]["close"]
     prices = [
-        (datetime.fromtimestamp(ts).replace(second=0, microsecond=0), close)
+        (datetime.fromtimestamp(ts, ZoneInfo("Asia/Seoul")).replace(second=0, microsecond=0), close)
         for ts, close in zip(timestamps, closes)
         if close is not None
     ]
@@ -59,10 +61,10 @@ def fetch_yahoo_history(ticker, interval_option):
 
 def plot_chart(df, label, height,interval_option):
     recent_value = df["Price"].iloc[-1]
-    recent_time = df.index[-1].strftime("%y.%m.%d %H:%M" if interval_option =="5분" else "%y.%m.%d")
+    recent_time = df.index[-1].strftime("%y.%m.%d %H:%M" if interval_option =="1분" else "%y.%m.%d")
     fig = go.Figure()
     fig.add_trace(go.Scatter(
-        x=df.index.strftime( "%m%d %H:%M" if interval_option =="5분" else "%Y-%m-%d"),
+        x=df.index.strftime( "%m%d %H:%M" if interval_option =="1분" else "%Y-%m-%d"),
         y=df["Price"],
         mode='lines',
         name=label
@@ -113,13 +115,14 @@ def main():
         "Copper": "HG=F"
     }
 
-    col1, col2 = st.columns([5, 1])
+    col1, col2, col3 = st.columns([3, 2, 3])
     with col1:
         selected = st.selectbox("📊 지표선택", list(datasets.keys()))
     with col2:
-        interval_option = st.selectbox("⏱️ 기간선택", ["5분", "1년", "5년", "10년", "20년","Max"])
+        interval_option = st.selectbox("⏱️ 기간선택", ["1분", "1년", "5년", "10년", "20년","Max"])
+    with col3:
+        height_percent = st.slider("📏 차트높이", min_value=50, max_value=150, value=100, step=5)
 
-    height_percent = st.slider("차트 높이 (기본: 100%)", min_value=50, max_value=150, value=100, step=5)
     chart_height = int(500 * height_percent / 100)
 
     with st.spinner(f"{selected} ({interval_option}) 데이터를 가져오는 중..."):
