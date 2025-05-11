@@ -3,33 +3,34 @@ import requests
 import time
 import random
 import pandas as pd
+from pandas.tseries.offsets import BDay
 import plotly.graph_objs as go
 from datetime import datetime, timedelta
 
 
 @st.cache_data(show_spinner=False)
 def fetch_yahoo_history(ticker, interval_option):
-    now = datetime.now()
+    recent_business_day = pd.Timestamp.today() - pd.tseries.offsets.BDay(0)
     if interval_option == "1분":
-        from_day = now - timedelta(days=5)
+        from_day = recent_business_day - BDay(3)
         interval = "1m"
     elif  interval_option == "1년": 
-        from_day = now - timedelta(days=365)
+        from_day = recent_business_day - timedelta(days=365)
         interval = "1d"
     elif  interval_option == "5년": 
-        from_day = now - timedelta(days=1825)
+        from_day = recent_business_day - timedelta(days=1825)
         interval = "1d"
     elif  interval_option == "10년": 
-        from_day = now - timedelta(days=3650)
+        from_day = recent_business_day - timedelta(days=3650)
         interval = "1d"
     elif  interval_option == "20년": 
-        from_day = now - timedelta(days=7300)
+        from_day = recent_business_day - timedelta(days=7300)
         interval = "1d"
     else : 
         from_day = datetime(1985, 1, 1)
         interval = "1d"
     period1 = int(time.mktime(from_day.timetuple()))
-    period2 = int(time.mktime(now.timetuple()))
+    period2 = int(time.mktime(recent_business_day.timetuple()))
 
     url = (
         f"https://query1.finance.yahoo.com/v8/finance/chart/{ticker}?"
