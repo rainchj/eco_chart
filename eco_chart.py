@@ -11,9 +11,9 @@ from datetime import datetime, timedelta
 @st.cache_data(show_spinner=False)
 def fetch_yahoo_history(ticker, interval_option):
     recent_business_day = pd.Timestamp.today() - pd.tseries.offsets.BDay(0)
-    if interval_option == "1분":
+    if interval_option == "5분":
         from_day = recent_business_day - BDay(3)
-        interval = "1m"
+        interval = "5m"
     elif  interval_option == "1년": 
         from_day = recent_business_day - timedelta(days=365)
         interval = "1d"
@@ -59,10 +59,10 @@ def fetch_yahoo_history(ticker, interval_option):
 
 def plot_chart(df, label, height,interval_option):
     recent_value = df["Price"].iloc[-1]
-    recent_time = df.index[-1].strftime("%y.%m.%d %H:%M" if interval_option =="1분" else "%y.%m.%d")
+    recent_time = df.index[-1].strftime("%y.%m.%d %H:%M" if interval_option =="5분" else "%y.%m.%d")
     fig = go.Figure()
     fig.add_trace(go.Scatter(
-        x=df.index.strftime( "%m%d %H:%M" if interval_option =="1분" else "%Y-%m-%d"),
+        x=df.index.strftime( "%m%d %H:%M" if interval_option =="5분" else "%Y-%m-%d"),
         y=df["Price"],
         mode='lines',
         name=label
@@ -117,7 +117,7 @@ def main():
     with col1:
         selected = st.selectbox("📊 지표선택", list(datasets.keys()))
     with col2:
-        interval_option = st.selectbox("⏱️ 기간선택", ["1분", "1년", "5년", "10년", "20년","Max"])
+        interval_option = st.selectbox("⏱️ 기간선택", ["5분", "1년", "5년", "10년", "20년","Max"])
 
     height_percent = st.slider("차트 높이 (기본: 100%)", min_value=50, max_value=150, value=100, step=5)
     chart_height = int(500 * height_percent / 100)
