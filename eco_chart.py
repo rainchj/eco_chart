@@ -135,12 +135,14 @@ def main():
 
     st.caption("ⓒ 2025.1.30. 유행살이. All rights reserved.")
 
-    # Streamlit 스타일 숨기기
+    # Streamlit UI 요소 숨기기
     hide_streamlit_style = """
         <style>
         #MainMenu {visibility: hidden;}
         footer {visibility: hidden;}
         header {visibility: hidden;}
+        .stDeployButton {visibility: hidden;}
+        .st-emotion-cache-zq5wmm {visibility: hidden;}
         </style>
     """
     st.markdown(hide_streamlit_style, unsafe_allow_html=True)
