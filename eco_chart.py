@@ -88,7 +88,7 @@ def plot_chart(df, label, height, interval_option):
 def main():
     st.set_page_config(page_title="경제지표 실시간 차트", layout="wide")
     #st.markdown('<h4>📈 경제지표 실시간 차트</h4>', unsafe_allow_html=True)
-    st.markdown("")
+    #st.markdown("")
 
     datasets = {
         "USD/KRW": "KRW=X",
@@ -126,14 +126,10 @@ def main():
     with st.spinner(f"{selected} ({interval_option}) 데이터를 가져오는 중..."):
         df = fetch_yahoo_history(datasets[selected], interval_option)
 
-    # 차트 먼저 표시할 공간 확보
     chart_placeholder = st.empty()
-
-    # 차트 높이 슬라이더는 아래에 표시
     height_percent = st.slider("📏 차트높이", min_value=50, max_value=150, value=100, step=5)
-    chart_height = int(600 * height_percent / 100)
+    chart_height = int(500 * height_percent / 100)
 
-    # 차트를 위쪽 placeholder에 표시
     with chart_placeholder:
         plot_chart(df, selected, chart_height, interval_option)
 
