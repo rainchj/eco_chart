@@ -10,7 +10,7 @@ from zoneinfo import ZoneInfo
 
 
 
-@st.cache_data(show_spinner=False)
+@st.cache_data(show_spinner=False, ttl=60)  # 60초마다 자동 새로고침
 def fetch_yahoo_history(ticker, interval_option):
     recent_business_day = pd.Timestamp.today() - pd.tseries.offsets.BDay(0)
     if interval_option == "1분":
@@ -61,7 +61,7 @@ def fetch_yahoo_history(ticker, interval_option):
 
 def plot_chart(df, label, height,interval_option):
     recent_value = df["Price"].iloc[-1]
-    recent_time = df.index[-1].strftime("%y.%m.%d %H:%M" if interval_option =="1분" else "%y.%m.%d")
+    recent_time = df.index[-1].strftime("%y.%m.%d %H:%M")
     fig = go.Figure()
     fig.add_trace(go.Scatter(
         x=df.index.strftime( "%m%d %H:%M" if interval_option =="1분" else "%Y-%m-%d"),
@@ -92,16 +92,18 @@ def main():
     st.markdown("")
 
     datasets = {
-        "Dollar Index": "^NYICDX",
         "USD/KRW": "KRW=X",
         "JPY/KRW": "JPYKRW=X",
         "USD/JPY": "JPY=X",
         "USD/CNY": "CNY=X",
         "EUR/USD": "EURUSD=X",
-        "VIX": "^VIX",
+        "Dollar Index": "DX-Y.NYB",
+
         "코스피": "^KS11",
         "코스닥": "^KQ11",
         "삼성전자": "005930.KS",
+
+        "VIX": "^VIX",
         "S&P500": "^GSPC",
         "NASDAQ": "^IXIC",
         "Apple": "AAPL",
@@ -109,6 +111,7 @@ def main():
         "Treasury 30Y": "^TYX",
         "IEF": "IEF",
         "TLT": "TLT",
+
         "Crude Oil": "CL=F",
         "Gold": "GC=F",
         "Silver": "SI=F",
@@ -122,6 +125,11 @@ def main():
         interval_option = st.selectbox("⏱️ 기간선택", ["1분", "1년", "5년", "10년", "20년","Max"])
     with col3:
         height_percent = st.slider("📏 차트높이", min_value=50, max_value=150, value=100, step=5)
+
+    #     # 수동 새로고침 버튼
+    # if st.button("🔄 데이터 새로고침"):
+    #     st.cache_data.clear()
+    #     st.rerun()
 
     chart_height = int(500 * height_percent / 100)
 
