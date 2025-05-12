@@ -9,26 +9,25 @@ from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 
-
 @st.cache_data(show_spinner=False, ttl=60)  # 60초마다 자동 새로고침
 def fetch_yahoo_history(ticker, interval_option):
     recent_business_day = pd.Timestamp.today() - pd.tseries.offsets.BDay(0)
     if interval_option == "1분":
         from_day = recent_business_day - BDay(3)
         interval = "1m"
-    elif  interval_option == "1년": 
+    elif interval_option == "1년":
         from_day = recent_business_day - timedelta(days=365)
         interval = "1d"
-    elif  interval_option == "5년": 
+    elif interval_option == "5년":
         from_day = recent_business_day - timedelta(days=1825)
         interval = "1d"
-    elif  interval_option == "10년": 
+    elif interval_option == "10년":
         from_day = recent_business_day - timedelta(days=3650)
         interval = "1d"
-    elif  interval_option == "20년": 
+    elif interval_option == "20년":
         from_day = recent_business_day - timedelta(days=7300)
         interval = "1d"
-    else : 
+    else:
         from_day = datetime(1985, 1, 1)
         interval = "1d"
     period1 = int(time.mktime(from_day.timetuple()))
@@ -59,12 +58,12 @@ def fetch_yahoo_history(ticker, interval_option):
     return pd.DataFrame(prices, columns=["Date", "Price"]).set_index("Date")
 
 
-def plot_chart(df, label, height,interval_option):
+def plot_chart(df, label, height, interval_option):
     recent_value = df["Price"].iloc[-1]
     recent_time = df.index[-1].strftime("%y.%m.%d %H:%M")
     fig = go.Figure()
     fig.add_trace(go.Scatter(
-        x=df.index.strftime( "%m%d %H:%M" if interval_option =="1분" else "%Y-%m-%d"),
+        x=df.index.strftime("%m%d %H:%M" if interval_option == "1분" else "%Y-%m-%d"),
         y=df["Price"],
         mode='lines',
         name=label
@@ -88,7 +87,7 @@ def plot_chart(df, label, height,interval_option):
 
 def main():
     st.set_page_config(page_title="경제지표 실시간 차트", layout="wide")
-    st.markdown('<h4>📈 경제지표 실시간 차트</h4>', unsafe_allow_html=True)
+    #st.markdown('<h4>📈 경제지표 실시간 차트</h4>', unsafe_allow_html=True)
     st.markdown("")
 
     datasets = {
@@ -118,26 +117,37 @@ def main():
         "Copper": "HG=F"
     }
 
-    col1, col2, col3 = st.columns([3, 2, 3])
+    col1, col2 = st.columns([3, 2])
     with col1:
         selected = st.selectbox("📊 지표선택", list(datasets.keys()))
     with col2:
-        interval_option = st.selectbox("⏱️ 기간선택", ["1분", "1년", "5년", "10년", "20년","Max"])
-    with col3:
-        height_percent = st.slider("📏 차트높이", min_value=50, max_value=150, value=100, step=5)
-
-    #     # 수동 새로고침 버튼
-    # if st.button("🔄 데이터 새로고침"):
-    #     st.cache_data.clear()
-    #     st.rerun()
-
-    chart_height = int(500 * height_percent / 100)
+        interval_option = st.selectbox("⏱️ 기간선택", ["1분", "1년", "5년", "10년", "20년", "Max"])
 
     with st.spinner(f"{selected} ({interval_option}) 데이터를 가져오는 중..."):
         df = fetch_yahoo_history(datasets[selected], interval_option)
+
+    # 차트 먼저 표시할 공간 확보
+    chart_placeholder = st.empty()
+
+    # 차트 높이 슬라이더는 아래에 표시
+    height_percent = st.slider("📏 차트높이", min_value=50, max_value=150, value=100, step=5)
+    chart_height = int(600 * height_percent / 100)
+
+    # 차트를 위쪽 placeholder에 표시
+    with chart_placeholder:
         plot_chart(df, selected, chart_height, interval_option)
 
     st.caption("ⓒ 2025.1.30. 유행살이. All rights reserved.")
+
+    # Streamlit 스타일 숨기기
+    hide_streamlit_style = """
+        <style>
+        #MainMenu {visibility: hidden;}
+        footer {visibility: hidden;}
+        header {visibility: hidden;}
+        </style>
+    """
+    st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 
 if __name__ == "__main__":
