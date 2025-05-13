@@ -78,7 +78,7 @@ def plot_chart(df, label, height, interval_option, previous_close=None):
             change_text = f'<span style="color:blue;">-{abs(change_pct):.2f}%</span>'
     else:
         change_text = ""
-    title_html = f"{label} {recent_value:.2f} {change_text} ({recent_time})"
+    title_html = f"{label} {recent_value:.2f} {change_text}, {recent_time}"
 
     fig = go.Figure()
     fig.add_trace(go.Scatter(
@@ -88,8 +88,7 @@ def plot_chart(df, label, height, interval_option, previous_close=None):
         name=label
     ))
     fig.update_layout(
-        title=dict(text=title_html, font=dict(size=20)),
-        title_font=dict(size=20),
+        title=dict(text=title_html, font=dict(size=18)),
         xaxis=dict(tickangle=90),
         shapes=[dict(
             type="line",
@@ -152,16 +151,16 @@ def main():
 
     st.caption("ⓒ 2025.1.30. 유행살이. All rights reserved.")
 
-    hide_streamlit_ui = """
-        <style>
-        #MainMenu {visibility: hidden;}        /* 오른쪽 상단 메뉴 */
-        footer {visibility: hidden;}           /* 오른쪽 하단 워터마크 */
-        header {visibility: hidden;}           /* 페이지 상단 헤더 */
-        .stDeployButton {visibility: hidden;}  /* 배포 버튼 */
-        .st-emotion-cache-zq5wmm {visibility: hidden;} /* 오른쪽 아래 로고 */
-        </style>
-    """
-    st.markdown(hide_streamlit_ui, unsafe_allow_html=True)
+    # hide_streamlit_ui = """
+    #     <style>
+    #     #MainMenu {visibility: hidden;}        /* 오른쪽 상단 메뉴 */
+    #     footer {visibility: hidden;}           /* 오른쪽 하단 워터마크 */
+    #     header {visibility: hidden;}           /* 페이지 상단 헤더 */
+    #     .stDeployButton {visibility: hidden;}  /* 배포 버튼 */
+    #     .st-emotion-cache-zq5wmm {visibility: hidden;} /* 오른쪽 아래 로고 */
+    #     </style>
+    # """
+    # st.markdown(hide_streamlit_ui, unsafe_allow_html=True)
 
 
 if __name__ == "__main__":
