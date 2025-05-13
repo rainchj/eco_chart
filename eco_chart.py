@@ -151,22 +151,23 @@ def main():
 
     st.caption("ⓒ 2025.1.30. 유행살이. All rights reserved.")
 
+    reduce_top_margin = """
+        <style>
+        header {visibility: hidden;}
+        .block-container {
+            padding-top: 2rem !important;
+        }
+        </style>
+    """
+    st.markdown(reduce_top_margin, unsafe_allow_html=True)
+
     hide_streamlit_ui = """
         <style>
-        #MainMenu {visibility: hidden;}
-        footer {visibility: hidden;}
-        header {visibility: hidden;}
-
-        /* 오른쪽 아래 빨간색 배지 제거 */
-        [data-testid="stStatusWidget"] {display: none !important;}
-        .st-emotion-cache-1outpf7 {display: none !important;}
-        .st-emotion-cache-17ziqus {display: none !important;}
-        .stActionButtonIcon {display: none !important;}
-        
-        /* 전체 오른쪽 하단 영역 제거 */
-        .stDeployButton, .st-emotion-cache-9aoz2h, .st-emotion-cache-1v0mbdj {
-            display: none !important;
-        }
+        #MainMenu {visibility: hidden;}        /* 오른쪽 상단 메뉴 */
+        footer {visibility: hidden;}           /* 오른쪽 하단 워터마크 */
+        header {visibility: hidden;}           /* 페이지 상단 헤더 */
+        .stDeployButton {visibility: hidden;}  /* 배포 버튼 */
+        .st-emotion-cache-zq5wmm {visibility: hidden;} /* 오른쪽 아래 로고 */
         </style>
     """
     st.markdown(hide_streamlit_ui, unsafe_allow_html=True)
