@@ -50,17 +50,36 @@ def fetch_yahoo_history(ticker, interval_option):
     result = response.json()["chart"]["result"][0]
     timestamps = result["timestamp"]
     closes = result["indicators"]["quote"][0]["close"]
+
+    response = requests.get(f"https://query1.finance.yahoo.com/v8/finance/chart/{ticker}?interval=1m", headers=headers)
+    previous_close = response.json()["chart"]["result"][0]["meta"]["previousClose"]
+
+    # previous_close = None
+    # if interval_option == "1분":
+    #     previous_close = result["meta"]["previousClose"]
+
     prices = [
         (datetime.fromtimestamp(ts, ZoneInfo("Asia/Seoul")).replace(second=0, microsecond=0), close)
         for ts, close in zip(timestamps, closes)
         if close is not None
     ]
-    return pd.DataFrame(prices, columns=["Date", "Price"]).set_index("Date")
+    return  pd.DataFrame(prices, columns=["Date", "Price"]).set_index("Date"), previous_close
 
 
-def plot_chart(df, label, height, interval_option):
+def plot_chart(df, label, height, interval_option, previous_close=None):
     recent_value = df["Price"].iloc[-1]
-    recent_time = df.index[-1].strftime("%y.%m.%d %H:%M")
+    recent_time = df.index[-1].strftime("%y%m%d %H:%M")
+    
+    if previous_close:
+        change_pct = ((recent_value - previous_close) / previous_close) * 100 if previous_close != 0 else 0
+        if change_pct >= 0:
+            change_text = f'<span style="color:red;">+{change_pct:.2f}%</span>'
+        else:
+            change_text = f'<span style="color:blue;">-{abs(change_pct):.2f}%</span>'
+    else:
+        change_text = ""
+    title_html = f"{label} {recent_value:.2f} {change_text} ({recent_time})"
+
     fig = go.Figure()
     fig.add_trace(go.Scatter(
         x=df.index.strftime("%m%d %H:%M" if interval_option == "1분" else "%Y-%m-%d"),
@@ -69,7 +88,7 @@ def plot_chart(df, label, height, interval_option):
         name=label
     ))
     fig.update_layout(
-        title=f"{label} {recent_value:.2f} ({recent_time})",
+        title=dict(text=title_html, font=dict(size=20)),
         title_font=dict(size=20),
         xaxis=dict(tickangle=90),
         shapes=[dict(
@@ -122,30 +141,27 @@ def main():
         selected = st.selectbox("📊 지표선택", list(datasets.keys()))
     with col2:
         interval_option = st.selectbox("⏱️ 기간선택", ["1분", "1년", "5년", "10년", "20년", "Max"])
-
     with st.spinner(f"{selected} ({interval_option}) 데이터를 가져오는 중..."):
-        df = fetch_yahoo_history(datasets[selected], interval_option)
-
+        df, previous_close = fetch_yahoo_history(datasets[selected], interval_option)
+    
     chart_placeholder = st.empty()
     height_percent = st.slider("📏 차트높이", min_value=50, max_value=150, value=100, step=5)
     chart_height = int(500 * height_percent / 100)
-
     with chart_placeholder:
-        plot_chart(df, selected, chart_height, interval_option)
+        plot_chart(df, selected, chart_height, interval_option, previous_close)
 
     st.caption("ⓒ 2025.1.30. 유행살이. All rights reserved.")
 
-    # Streamlit UI 요소 숨기기
-    hide_streamlit_style = """
+    hide_streamlit_ui = """
         <style>
-        #MainMenu {visibility: hidden;}
-        footer {visibility: hidden;}
-        header {visibility: hidden;}
-        .stDeployButton {visibility: hidden;}
-        .st-emotion-cache-zq5wmm {visibility: hidden;}
+        #MainMenu {visibility: hidden;}        /* 오른쪽 상단 메뉴 */
+        footer {visibility: hidden;}           /* 오른쪽 하단 워터마크 */
+        header {visibility: hidden;}           /* 페이지 상단 헤더 */
+        .stDeployButton {visibility: hidden;}  /* 배포 버튼 */
+        .st-emotion-cache-zq5wmm {visibility: hidden;} /* 오른쪽 아래 로고 */
         </style>
     """
-    st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+    st.markdown(hide_streamlit_ui, unsafe_allow_html=True)
 
 
 if __name__ == "__main__":
