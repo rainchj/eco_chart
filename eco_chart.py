@@ -12,20 +12,20 @@ from zoneinfo import ZoneInfo
 @st.cache_data(show_spinner=False, ttl=60)  # 60초마다 자동 새로고침
 def fetch_yahoo_history(ticker, interval_option):
     recent_business_day = pd.Timestamp.today() - pd.tseries.offsets.BDay(0)
-    if interval_option == "1분":
-        from_day = recent_business_day - BDay(3)
+    if interval_option == "1일":
+        from_day = recent_business_day - BDay(1)
+        interval = "1m"
+    elif interval_option == "5일":
+        from_day = recent_business_day - BDay(6)
         interval = "1m"
     elif interval_option == "1년":
         from_day = recent_business_day - timedelta(days=365)
         interval = "1d"
     elif interval_option == "5년":
-        from_day = recent_business_day - timedelta(days=1825)
-        interval = "1d"
+        from_day = recent_business_day - timedelta(days=365*5)
+        interval = "1wk"
     elif interval_option == "10년":
-        from_day = recent_business_day - timedelta(days=3650)
-        interval = "1d"
-    elif interval_option == "20년":
-        from_day = recent_business_day - timedelta(days=7300)
+        from_day = recent_business_day - timedelta(days=365*10)
         interval = "1d"
     else:
         from_day = datetime(1985, 1, 1)
@@ -82,7 +82,7 @@ def plot_chart(df, label, height, interval_option, previous_close=None):
 
     fig = go.Figure()
     fig.add_trace(go.Scatter(
-        x=df.index.strftime("%m%d %H:%M" if interval_option == "1분" else "%Y-%m-%d"),
+        x=df.index.strftime("%m%d %H:%M" if interval_option == "1일" or  interval_option == "5일" else "%Y-%m-%d"),
         y=df["Price"],
         mode='lines',
         name=label
@@ -98,7 +98,8 @@ def plot_chart(df, label, height, interval_option, previous_close=None):
         )],
         height=height,
         margin=dict(t=60, b=100),
-        dragmode=False
+        dragmode="zoom",
+        hovermode="x unified"
     )
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
 
@@ -139,7 +140,7 @@ def main():
     with col1:
         selected = st.selectbox("📊 지표선택", list(datasets.keys()))
     with col2:
-        interval_option = st.selectbox("⏱️ 기간선택", ["1분", "1년", "5년", "10년", "20년", "Max"])
+        interval_option = st.selectbox("⏱️ 기간선택", ["1일", "5일", "1년", "5년", "10년", "Max"])
     with st.spinner(f"{selected} ({interval_option}) 데이터를 가져오는 중..."):
         df, previous_close = fetch_yahoo_history(datasets[selected], interval_option)
     
