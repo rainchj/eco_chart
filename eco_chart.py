@@ -144,25 +144,9 @@ def main():
         df, previous_close = fetch_yahoo_history(datasets[selected], interval_option)
     
     chart_placeholder = st.empty()
-    height_percent = st.slider("📏 차트높이", min_value=50, max_value=150, value=100, step=5)
-    chart_height = int(500 * height_percent / 100)
-
-        # 모바일인지 확인하는 JavaScript 삽입
-    st.markdown("""
-        <script>
-            const isMobile = window.innerWidth < 768;
-            window.parent.postMessage({ isMobile: isMobile }, "*");
-        </script>
-    """, unsafe_allow_html=True)
-
-    # Streamlit에서 JS 메시지를 받아 저장
-    st.session_state["is_mobile"] = st.query_params.get("isMobile", [False])[0] == "true"
-
-    # 모바일이면 차트 높이 제한
-    if st.session_state["is_mobile"]:
-        chart_height = min(chart_height, 300)
-
-
+    height_percent = st.slider("📏 차트높이", min_value=70, max_value=200, value=100, step=10)
+    chart_height = int(400 * height_percent / 100)
+    
     with chart_placeholder:
         plot_chart(df, selected, chart_height, interval_option, previous_close)
 
@@ -178,17 +162,18 @@ def main():
     """
     st.markdown(reduce_top_margin, unsafe_allow_html=True)
 
+    hide_streamlit_ui = """
+        <style>
+        #MainMenu {visibility: hidden;}        /* 오른쪽 상단 메뉴 */
+        footer {visibility: hidden;}           /* 오른쪽 하단 워터마크 */
+        header {visibility: hidden;}           /* 페이지 상단 헤더 */
+        .stDeployButton {visibility: hidden;}  /* 배포 버튼 */
+        .st-emotion-cache-zq5wmm {visibility: hidden;} /* 오른쪽 아래 로고 */
+        </style>
+    """
+    st.markdown(hide_streamlit_ui, unsafe_allow_html=True)
 
-    # hide_streamlit_ui = """
-    #     <style>
-    #     #MainMenu {visibility: hidden;}        /* 오른쪽 상단 메뉴 */
-    #     footer {visibility: hidden;}           /* 오른쪽 하단 워터마크 */
-    #     header {visibility: hidden;}           /* 페이지 상단 헤더 */
-    #     .stDeployButton {visibility: hidden;}  /* 배포 버튼 */
-    #     .st-emotion-cache-zq5wmm {visibility: hidden;} /* 오른쪽 아래 로고 */
-    #     </style>
-    # """
-    # st.markdown(hide_streamlit_ui, unsafe_allow_html=True)
+
 
 
 if __name__ == "__main__":
