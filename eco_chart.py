@@ -105,7 +105,7 @@ def plot_chart(df, label, height, interval_option, previous_close=None):
 
 def main():
     st.set_page_config(page_title="경제지표 실시간 차트", layout="wide")
-    #st.markdown('<h4>📈 경제지표 실시간 차트</h4>', unsafe_allow_html=True)
+    st.markdown('<h4>📈 경제지표 실시간 차트</h4>', unsafe_allow_html=True)
     #st.markdown("")
 
     datasets = {
